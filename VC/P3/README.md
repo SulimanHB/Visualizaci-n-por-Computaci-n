@@ -10,7 +10,7 @@ Las tareas abordan dos problemas distintos:
 
 ---
 
-### 🪙 Tarea 1 — Detección y valoración automática de monedas
+## Tarea 1 — Detección y valoración automática de monedas
 
 Esta tarea tiene como objetivo **identificar y cuantificar monedas** presentes en una imagen, estimando la cantidad total de dinero.  
 
@@ -53,9 +53,14 @@ A pesar de estas limitaciones, el método demuestra una **buena precisión** par
 #### 📋 Ejemplo de flujo
 ```bash
 Procesando Monedas.jpg ...
-Referencia seleccionada: 1€ — Escala = 0.0897 mm/pixel
-💰 Total contado: 6.72 €
+Referencia seleccionada: 1€ — Escala = 0.1264 mm/pixel
+💰 Total contado: 3.88 €
 ```
+<img width="328" height="681" alt="image" src="https://github.com/user-attachments/assets/1d68d9a1-c2a3-40b4-80ee-3f398ec81f14" />
+<img width="327" height="678" alt="image" src="https://github.com/user-attachments/assets/594ae874-1ae6-47d3-891d-e24dbb11b214" />
+
+
+
 
 #### ⚙️ Técnicas y librerías utilizadas
 - `cv2.HoughCircles` — detección de círculos.  
@@ -65,7 +70,7 @@ Referencia seleccionada: 1€ — Escala = 0.0897 mm/pixel
 
 ---
 
-### 🧫 Tarea 2 — Clasificación automática de microplásticos
+## Tarea 2 — Clasificación automática de microplásticos
 
 En esta tarea se implementa un sistema de **análisis de partículas** con el fin de identificar el tipo de microplástico presente en distintas imágenes.  
 
