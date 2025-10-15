@@ -77,62 +77,106 @@ En esta tarea se implementa un sistema de **análisis de partículas** con el fi
 #### 🧠 Objetivo
 A partir de tres conjuntos de entrenamiento (fragmentos negros, pellets esféricos y films translúcidos), el sistema **aprende patrones de forma, color y textura** para clasificar nuevas muestras de prueba (*MPs_test.jpg*).  
 
-#### ⚗️ Flujo de procesamiento
+### **📁 Datos de entrada**
 
-1. **Segmentación de partículas:**
-   - Conversión a escala de grises y suavizado gaussiano.  
-   - Umbralización combinada:
-     - **Otsu global** (`cv2.THRESH_BINARY_INV + Otsu`).
-     - **Umbral adaptativo local** (`cv2.adaptiveThreshold`).  
-   - Combinación de ambas máscaras para conservar detalles sin ruido.
-   - Limpieza morfológica con `cv2.morphologyEx` y eliminación de objetos pequeños.
+Imágenes de entrenamiento (una por clase, con múltiples instancias):
 
-2. **Extracción de características:**
-   Para cada región detectada (partícula), se calculan:
-   - **Geométricas:**
-     - Área, perímetro, circularidad, aspecto, extensión, solidez.
-   - **Color (en HSV):**
-     - Medias y desviaciones típicas de H, S y V.
-   - **Textura:**
-     - Varianza de intensidad y contraste local.  
 
-   En total, se generan **13 características por partícula.**
+- TAR.png → fragmentos_negros  
+  <img src="TAR.png" alt="fragmentos_negros" width="150"><br>
 
-3. **Entrenamiento del modelo:**
-   - Se emplea un **Random Forest** con:
-     - `n_estimators=1200`
-     - `max_depth=18`
-     - `class_weight="balanced"`
-   - Se realiza **balanceo de clases** mediante `resample` para evitar sesgos.  
+- PEL.png → pellets_esfericos  
+  <img src="PEL.png" alt="fragmentos_negros" width="150"><br>
 
-4. **Evaluación sobre la imagen de test:**
-   - Se procesan las anotaciones (*MPs_test_bbs.csv*) para extraer las regiones indicadas.
-   - Se clasifican las partículas con el modelo entrenado.  
-   - Se aplica un **reajuste de decisión** basado en el brillo medio (V_mean) para mejorar la separación entre fragmentos y films.  
+- FRA.png → films_translucidos  
+  <img src="FRA.png" alt="films_translucidos" width="150"><br>
 
-5. **Métricas y visualización:**
-   - Se genera la **matriz de confusión** y el **informe de clasificación**.  
-   - Se guarda un archivo `predicciones_test.csv` con las clases predichas.  
-   - Se muestra un **mapa de calor** con `seaborn` para visualizar los aciertos y errores.  
+- Imagen de test: MPs_test.jpg  
+  <img src="MPs_test.jpg" alt="test" width="150"><br>
 
-#### 📊 Ejemplo de salida
-```bash
-=== Entrenamiento ===
-Procesando TAR.png (fragmentos_negros)...
-Procesando PEL.png (pellets_esfericos)...
-Procesando FRA.png (films_translucidos)...
-Balance de clases: {'fragmentos_negros': 85, 'pellets_esfericos': 85, 'films_translucidos': 85}
+- Anotaciones de test: MPs_test_bbs.csv con columnas:
 
-=== Evaluación ===
-Matriz de confusión:
-['fragmentos_negros', 'pellets_esfericos', 'films_translucidos']
-[[45  2  3]
- [ 1 47  4]
- [ 0  3 46]]
+- x_min, y_min, x_max, y_max (int, píxeles)
 
-✅ Precisión global: 92.80%
-✅ Archivo 'predicciones_test.csv' guardado con éxito.
-```
+- label en {TAR, PEL, FRA} (se mapea a las clases finales)
+
+
+## **🔄 Flujo de procesamiento**
+
+### **Preprocesado / Segmentación**
+- Conversión a grises y Gaussian Blur(**`cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)`** y **`cv2.GaussianBlur(gray, (5, 5), 0)`**).
+- Otsu binario inverso + adaptativo(**`cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)`**).
+- Fusión (OR) para conservar detalle en zonas poco contrastadas.
+- Morfología con remove_small_objects para limpiar y rellenar.
+- Salida: máscara binaria.
+
+
+### **Aplicación de presprocesado**
+
+- TAR presprocesada 
+  <img src="TAR-PRES.png" alt="fragmentos_negros" width="750"><br>
+
+- PEL presprocesada   
+  <img src="PEL-PRES.png" alt="fragmentos_negros" width="750"><br>
+
+- FRA presprocesada  
+  <img src="FRA-PRES.png" alt="films_translucidos" width="750"><br>
+
+
+### **Extracción de características**
+
+
+- Etiquetado de componentes y regionprops.
+
+- Se descartan los objetos con area < 100.
+
+- Para cada objeto se calculan estos aspectos:
+  - *Geometría*: `area`, `circularity`, `aspect`, `extent`, `solidity`.
+
+  - *Color HSV*: `h_mean`, `s_mean`, `v_mean`, `h_std`, `s_std`, `v_std`.
+
+  - *Textura*: `var_intensity`, `contrast`.
+
+
+### **Preparación de datos**
+- Entrenamiento (prepare_training()):
+
+  - Para cada imagen de TRAIN: segmenta → extrae features → acumula todas las filas y sus etiquetas.
+
+  - Balanceo por downsampling: se iguala el nº de muestras por clase al mínimo encontrado (resample(..., n_samples=min_n)).
+
+  - Devuelve X, Y balanceados.
+
+- Test (prepare_test()):
+
+  - Lee MPs_test_bbs.csv y mapea label → `gt_class`.
+
+  - Por cada bbox: recorta → `segmenta` → extrae features; si no hay objetos, usa un vector nulo (1×13).
+
+  - Promedia las features por bbox → una fila por región.
+
+  - Devuelve `X_test`, `y_true`, `df`.
+
+
+### **Ejecución**
+
+- Entrena un RandomForestClassifier con `X_train, y_train de prepare_training()` (ya balanceados).
+
+- Evalúa con `prepare_test()` → obtiene `X_test`, `y_true` y **predice**.
+
+- Reajuste simple por brillo (`V de HSV`):
+
+  - si v_mean < 85 → fragmentos_negros
+
+  - si v_mean > 155 y era fragmentos_negros → films_translucidos
+
+- # Resultado  
+  <img src="Resultado-final.png" alt="films_translucidos" width="750"><br>
+
+Podemos observar que el resultado es bastante preciso siendo de un `74,2%`, siendo muy favorable y mostrando que el codigo acierta 3/4 partículas.
+
+Guardando un csv con las predicciones resueltas.
+
 
 #### 🧩 Técnicas empleadas
 - **Segmentación híbrida:** Otsu + umbral adaptativo.  
@@ -151,8 +195,8 @@ El sistema muestra **alta precisión** incluso con iluminación variable. Sin em
 ## 👥 Autoría
 Este trabajo ha sido realizado por:
 
-**Pablo Medina Quintana** — Tarea 1 
-**Suliman Hassan** — Tarea 2
+**Pablo Medina Quintana** — Tarea 1<br>
+**Suliman Hassan El Boutaybi** — Tarea 2
 ---
 
 ## 📚 Fuentes y referencias
