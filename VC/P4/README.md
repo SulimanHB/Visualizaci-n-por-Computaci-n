@@ -80,9 +80,7 @@ Cada línea representa una detección individual con sus coordenadas, nivel de c
 
 | Modelo | Tiempo medio de inferencia | Precisión (lectura correcta) | Observaciones |
 |:-------|:---------------------------:|:-----------------------------:|:--------------|
-| Tesseract | 0.45 s | 78% | Rápido pero sensible a iluminación |
 | EasyOCR | 0.39 s | 83% | Buen equilibrio entre velocidad y acierto |
-| PaddleOCR | 0.41 s | 86% | Preciso en caracteres claros |
 | SmolVLM | 1.24 s | 92% | Lento, pero muy robusto ante ruido |
 
 > ⚠️ Los valores son orientativos según el hardware empleado y las imágenes de prueba.
@@ -91,3 +89,4 @@ Cada línea representa una detección individual con sus coordenadas, nivel de c
 Aunque los OCR tradicionales ofrecen buena velocidad, los modelos VLM como SmolVLM logran una lectura más precisa en condiciones complejas. EasyOCR representa el mejor compromiso entre rendimiento y exactitud.
 
 ---
+
