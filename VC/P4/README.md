@@ -68,6 +68,8 @@ El entorno utilizado fue `VC_P4`, con **Python 3.9.5** y las siguientes dependen
 - [Vídeo procesado con detección y EasyOCR](https://github.com/SulimanHB/Visualizaci-n-por-Computaci-n/blob/main/VC/P4/salida_easy/test2_result.mp4)
 - [Vídeo procesado con detección y SmolVLM](https://github.com/SulimanHB/Visualizaci-n-por-Computaci-n/blob/main/VC/P4/salida_smol/test2_result.mp4)
 
+- [Vídeo procesado con detección de test](https://alumnosulpgc-my.sharepoint.com/:f:/g/personal/suliman_hassan101_alu_ulpgc_es/En5oK8z1nA9Mr3r90nEB2JYB4Tv-hYF9TS2nXLMuZLywKg?e=g5d4de)
+
 ### CSV de resultados
 Archivo: [`detecciones_EasyOCR.csv`](https://github.com/SulimanHB/Visualizaci-n-por-Computaci-n/blob/main/VC/P4/salida_easy/test2_result.csv)  
 Archivo: [`detecciones_SmolVLM.csv`](https://github.com/SulimanHB/Visualizaci-n-por-Computaci-n/blob/main/VC/P4/salida_smol/test2_result.csv)  
