@@ -60,6 +60,11 @@ Si el script no abre la cámara de Iriun, prueba cambiando el 1 por 0 o 2.
 - **Salir:** Pulsa la tecla `ESC` para cerrar la aplicación.
 
 
+## Vídeo Demostración 
+
+[https://www.youtube.com/watch?v=x8EpFGQZp70](https://www.youtube.com/watch?v=x8EpFGQZp70)
+
+
 ---
 
 **Asignatura:** Visión por Computador
